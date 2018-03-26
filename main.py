@@ -1,10 +1,10 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import Required
+from datetime import datetime
 
 class NameForm(FlaskForm):
     name = StringField("您的名字是：", validators=[Required()])
@@ -17,12 +17,11 @@ app.config['SECRET_KEY'] = 'hard to guess'
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    name = None
     form = NameForm()
     if form.validate_on_submit():
-        name = form.name.data
-        form.name.data = ''
-    return render_template('index.html',current_time=datetime.utcnow(), name=name, form=form)
+        session['name'] = form.name.data
+        return redirect(url_for('index'))
+    return render_template('index.html',current_time=datetime.utcnow(), name=session.get('name'), form=form)
 
 
 @app.route('/user/<name>')
