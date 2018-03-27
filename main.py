@@ -4,7 +4,7 @@ from flask_moment import Moment
 from flask_wtf import FlaskForm
 from flask_sqlalchemy import SQLAlchemy
 from wtforms import StringField, SubmitField
-from wtforms.validators import Required
+from wtforms.validators import DataRequired
 from datetime import datetime
 import os
 
@@ -15,6 +15,7 @@ app.config['SECRET_KEY'] = 'hard to guess'
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///' + os.path.join(basedir, "db", "data.db")
 app.config["SQLALCHEMY_COMMIT_ON_TEARDOWN"] = True
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 bootstrap = Bootstrap(app)
 moment = Moment(app)
@@ -39,7 +40,7 @@ class User(db.Model):
         return '<Role %r>' % self.username
 
 class NameForm(FlaskForm):
-    name = StringField("您的名字是：", validators=[Required()])
+    name = StringField("您的名字是：", validators=[DataRequired()])
     submit = SubmitField('提交')
 
 @app.route('/', methods=['GET', 'POST'])
@@ -57,7 +58,7 @@ def index():
         form.name.data = ""
         return redirect(url_for('index'))
     return render_template('index.html',current_time=datetime.utcnow(), name=session.get('name'), 
-        form=form, known = session.get('known', False)
+        form=form, known = session.get('known', False))
 
 
 @app.route('/user/<name>')
